@@ -135,25 +135,37 @@ function turnHoursToMinutes(moviesArray) {
 
 // BONUS - Iteration 8: Best yearly score average - Best yearly score average
 function bestYearAvg(moviesArray) {
-  const clonedArray = Array.from(moviesArray);
-  if (clonedArray.length === 0) {
+  if (moviesArray.length === 0) {
     return null;
-  } else {
-    //Create a new array "groupByYear" that groups the original array using year and the expected output will be:
-    //const groupByYear = [{year:1929, items:[{year: 1929, rating:3},{year: 1929, rating:3}]},{}];
-    //With groupByYear array, use reduce to calculate the sum of each year and create a new array "groupByYearTotalRatings": with year and the sum
-    //Create a new array "groupByYearAvgRating" that contain the year with average rating.
-    const groupedByYear = clonedArray.reduce((accu, movie) => {
-      accu[movie.year] = accu[movie.year] || [];
-      accu[movie.year].push(movie);
-      return accu;
-    }, {});
-
-    const clustered = Object.entries(groupedByYear).map(([year, movies]) => ({
-      year,
-      movies,
-    }));
-
   }
-  return clustered
+
+  const clonedArray = Array.from(moviesArray);
+  //Create a new array "groupByYear" that groups the original array using year and the expected output will be:
+  //trans form the object to an array -> const clustered = [{year:1929, items:[{year: 1929, rating:3},{year: 1929, rating:3}]},{}];
+  //With groupByYear array, use reduce to calculate the sum of each year and create a new array "groupByYearTotalRatings": with year and the sum
+  //Create a new array "groupByYearAvgRating" that contain the year with average rating.
+  const groupedByYear = clonedArray.reduce((accu, movie) => {
+    if (accu[movie.year] === undefined) {
+      accu[movie.year] = [];
+    } else {
+      accu[movie.year].push(movie);
+    }
+    return accu;
+  }, {});
+
+  const clustered = Object.entries(groupedByYear).map(([year, movies]) => {
+    // Calculate the total scores for movies in the current year
+    const totalScores = movies.reduce((sum, movie) => sum + movie.score, 0);
+    const averageScore = totalScores / movies.length;
+    return {
+      year: parseInt(year),
+      averageScore: averageScore,
+    };
+  });
+
+  const sortedCluster = clustered
+    .sort((a, b) => b.averageScore - a.averageScore)
+    .splice(0, 1);
+
+  return `The best year was ${sortedCluster[0].year} with an average score of ${sortedCluster[0].averageScore}`;
 }
